@@ -401,7 +401,7 @@ extern float soft_endstop_min[XYZ], soft_endstop_max[XYZ];
 extern uint8_t active_extruder;
 
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-  void print_heaterstates();
+  void print_heaterstates(const bool short_format = 0);
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)

@@ -341,9 +341,8 @@
                            || isnan(ubl.z_values[0][0]))
 #endif
 
-#if ENABLED(FABTOTUM)
-  #include "Fabtotum.h"
-  FabtotumIO fabtotum;
+#if ENABLED(TOTUMDUINO)
+  #include "fabtotum/Fabtotum.h"
 #endif
 
 bool Running = true;
@@ -984,7 +983,7 @@ void servo_init() {
 
 #endif
 
-#if HAS_COLOR_LEDS
+#if defined(HAS_COLOR_LEDS) && !defined(TOTUMDUINO)
 
   void set_led_color(
     const uint8_t r, const uint8_t g, const uint8_t b
@@ -5285,7 +5284,7 @@ void home_all_axes() { gcode_G28(true); }
       #if DISABLED(PROBE_MANUALLY)
         home_offset[Z_AXIS] -= probe_pt(dx, dy, stow_after_each, 1, false); // 1st probe to set height
       #endif
-      
+
       do {
 
         float z_at_pt[13] = { 0.0 };
@@ -5385,7 +5384,7 @@ void home_all_axes() { gcode_G28(true); }
           #if ENABLED(PROBE_MANUALLY)
             test_precision = 0.00; // forced end
           #endif
-          
+
           switch (probe_points) {
             case 1:
               test_precision = 0.00; // forced end
@@ -7076,6 +7075,10 @@ inline void gcode_M104() {
 
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
 
+  #if ENABLED(TOTUMDUINO)
+    #include "fabtotum/formats/temperature.hpp"
+  #else
+
   void print_heater_state(const float &c, const float &t,
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       const float r,
@@ -7142,6 +7145,8 @@ inline void gcode_M104() {
       }
     #endif
   }
+  
+  #endif /* TOTUMDUINO */
 #endif
 
 /**
@@ -7180,7 +7185,7 @@ inline void gcode_M105() {
   inline void auto_report_temperatures() {
     if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
       next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
-      print_heaterstates();
+      print_heaterstates(1 /* SHORT_FORMAT */);
       SERIAL_EOL();
     }
   }
@@ -8107,7 +8112,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // PARK_HEAD_ON_PAUSE
 
-#if HAS_COLOR_LEDS
+#if defined(HAS_COLOR_LEDS) && !defined(TOTUMDUINO)
 
   /**
    * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
@@ -10382,9 +10387,9 @@ inline void gcode_T(uint8_t tmp_extruder) {
   #endif
 }
 
-#ifdef FABTOTUM
-#include "Fabtotum_gcodes.cpp"
-#endif 
+#ifdef TOTUMDUINO
+#include "fabtotum/m_gcodes.hpp"
+#endif
 
 /**
  * Process a single command and dispatch it to its handler
@@ -11219,6 +11224,10 @@ void process_next_command() {
       case 999: // M999: Restart after being Stopped
         gcode_M999();
         break;
+      
+      #if ENABLED(TOTUMDUINO)
+      #include "fabtotum/switch_m_gcodes.h"
+      #endif
     }
     break;
 
@@ -12799,6 +12808,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   planner.check_axes_activity();
+  
+  #if ENABLED(TOTUMDUINO)
+    fabtotum.manage_inactivity();
+  #endif
 }
 
 /**
@@ -12870,7 +12883,7 @@ void kill(const char* lcd_msg) {
   #if defined(ACTION_ON_KILL)
     SERIAL_ECHOLNPGM("//action:" ACTION_ON_KILL);
   #endif
-  
+
   #if HAS_POWER_SWITCH
     SET_INPUT(PS_ON_PIN);
   #endif
@@ -12934,7 +12947,7 @@ void setup() {
     setup_filrunoutpin();
   #endif
 
-  #if ENABLED(FABTOTUM)
+  #if ENABLED(TOTUMDUINO)
     fabtotum.init();
   #endif
 
@@ -13189,4 +13202,3 @@ void loop() {
   endstops.report_state();
   idle();
 }
-

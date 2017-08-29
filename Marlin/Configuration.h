@@ -42,10 +42,14 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(Daniel Kesler, default config)" // Who made the changes.
+//#define STRING_CONFIG_H_AUTHOR "(Daniel Kesler, default config)" // Who made the changes.
 //#define SHOW_BOOTSCREEN
 //#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 //#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
+
+#define STRING_BUILD_VERSION  "V 2.0.0.0"
+#define STRING_BUILD_DATE __DATE__ " " __TIME__ // build date and time
+#define STRING_CONFIG_H_AUTHOR "Colibri-Embedded" // Who made the changes.
 
 /**
  * Select which serial port on the board will be used for communication with the host.
@@ -70,8 +74,10 @@
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #define MOTHERBOARD TOTUMDUINO_V1
-  #define FABTOTUM 1
+  #define TOTUMDUINO 1
 #endif
+
+#define HAS_RGB_LEDS
 
 // @section extruder
 
@@ -684,7 +690,7 @@
 // :[-1,1]
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define Z_HOME_DIR 1
 
 // @section machine
 
@@ -907,7 +913,7 @@
 
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (8*60)
+#define HOMING_FEEDRATE_Z  (200)
 
 //=============================================================================
 //============================= Additional Features ===========================
@@ -925,7 +931,7 @@
 //
 #define EEPROM_SETTINGS   // Enable for M500 and M501 commands
 //#define DISABLE_M503    // Saves ~2700 bytes of PROGMEM. Disable for release!
-#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
+//#define EEPROM_CHITCHAT   // Give feedback on EEPROM commands. Disable to save PROGMEM.
 
 //
 // Host Keepalive
@@ -933,8 +939,8 @@
 // When enabled Marlin will send a busy status message to the host
 // every couple of seconds when it can't accept commands.
 //
-#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
-#define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
+//#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
+//#define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
 
 //
 // M100 Free Memory Watcher
