@@ -785,8 +785,10 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (da < 0) SBI(dm, X_HEAD);                // Save the real Extruder (head) direction in X Axis
     if (db < 0) SBI(dm, Y_HEAD);                // ...and Y
     if (dc < 0) SBI(dm, Z_AXIS);
-    if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
-    if (CORESIGN(da - db) < 0) SBI(dm, B_AXIS); // Motor B direction
+    //if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
+    //if (CORESIGN(da - db) < 0) SBI(dm, B_AXIS); // Motor B direction
+    if (da + db < 0) SBI(dm, B_AXIS);           // Motor A direction
+    if (CORESIGN(da - db) < 0) SBI(dm, A_AXIS); // Motor B direction
   #elif CORE_IS_XZ
     if (da < 0) SBI(dm, X_HEAD);                // Save the real Extruder (head) direction in X Axis
     if (db < 0) SBI(dm, Y_AXIS);
@@ -828,8 +830,10 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Number of steps for each axis
   // See http://www.corexy.com/theory.html
   #if CORE_IS_XY
-    block->steps[A_AXIS] = labs(da + db);
-    block->steps[B_AXIS] = labs(da - db);
+    block->steps[B_AXIS] = labs(da + db);
+    block->steps[A_AXIS] = labs(da - db);
+    // block->steps[A_AXIS] = labs(da + db);
+    // block->steps[B_AXIS] = labs(da - db);
     block->steps[Z_AXIS] = labs(dc);
   #elif CORE_IS_XZ
     block->steps[A_AXIS] = labs(da + dc);

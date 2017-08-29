@@ -83,7 +83,11 @@ class Buzzer {
      * @details Brings the class state to a known one.
      */
     void reset() {
+      #if ENABLED(BEEPER_PIN_INV)
+      this->on();
+      #else
       this->off();
+      #endif
       this->state.endtime = 0;
     }
 

@@ -341,6 +341,11 @@
                            || isnan(ubl.z_values[0][0]))
 #endif
 
+#if ENABLED(FABTOTUM)
+  #include "Fabtotum.h"
+  FabtotumIO fabtotum;
+#endif
+
 bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
@@ -10377,6 +10382,10 @@ inline void gcode_T(uint8_t tmp_extruder) {
   #endif
 }
 
+#ifdef FABTOTUM
+#include "Fabtotum_gcodes.cpp"
+#endif 
+
 /**
  * Process a single command and dispatch it to its handler
  * This is called from the main loop()
@@ -12923,6 +12932,10 @@ void setup() {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     setup_filrunoutpin();
+  #endif
+
+  #if ENABLED(FABTOTUM)
+    fabtotum.init();
   #endif
 
   setup_killpin();
