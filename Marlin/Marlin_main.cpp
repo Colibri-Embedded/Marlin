@@ -342,7 +342,7 @@
 #endif
 
 #if ENABLED(TOTUMDUINO)
-  #include "fabtotum/Fabtotum.h"
+  #include "fabtotum/Core.h"
 #endif
 
 bool Running = true;
@@ -7145,7 +7145,7 @@ inline void gcode_M104() {
       }
     #endif
   }
-  
+
   #endif /* TOTUMDUINO */
 #endif
 
@@ -8220,6 +8220,16 @@ inline void gcode_M203() {
  *  Also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
  */
 inline void gcode_M204() {
+  #if ENABLED(TOTUMDUINO)
+  if (parser.seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
+    planner.travel_acceleration = planner.acceleration = parser.value_linear_units();
+    //SERIAL_ECHOLNPAIR("Setting Print and Travel Acceleration: ", planner.acceleration);
+  }
+  if (parser.seen('T')) {
+    planner.retract_acceleration = parser.value_linear_units();
+    //SERIAL_ECHOLNPAIR("Setting Retract Acceleration: ", planner.retract_acceleration);
+  }
+  #else
   if (parser.seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
     planner.travel_acceleration = planner.acceleration = parser.value_linear_units();
     SERIAL_ECHOLNPAIR("Setting Print and Travel Acceleration: ", planner.acceleration);
@@ -8236,6 +8246,7 @@ inline void gcode_M204() {
     planner.travel_acceleration = parser.value_linear_units();
     SERIAL_ECHOLNPAIR("Setting Travel Acceleration: ", planner.travel_acceleration);
   }
+  #endif
 }
 
 /**
@@ -11224,7 +11235,7 @@ void process_next_command() {
       case 999: // M999: Restart after being Stopped
         gcode_M999();
         break;
-      
+
       #if ENABLED(TOTUMDUINO)
       #include "fabtotum/switch_m_gcodes.h"
       #endif
@@ -12808,9 +12819,9 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   planner.check_axes_activity();
-  
+
   #if ENABLED(TOTUMDUINO)
-    fabtotum.manage_inactivity();
+    FABtotum::core.manage_inactivity();
   #endif
 }
 
@@ -12948,7 +12959,7 @@ void setup() {
   #endif
 
   #if ENABLED(TOTUMDUINO)
-    fabtotum.init();
+    FABtotum::core.init();
   #endif
 
   setup_killpin();

@@ -47,6 +47,10 @@
   #include "watchdog.h"
 #endif
 
+#if ENABLED(TOTUMDUINO)
+  #include "fabtotum/FABtotum.h"
+#endif
+
 #ifdef K1 // Defined in Configuration.h in the PID settings
   #define K2 (1.0-K1)
 #endif
@@ -530,6 +534,10 @@ void Temperature::_temp_error(const int8_t e, const char * const serial_msg, con
 }
 
 void Temperature::max_temp_error(const int8_t e) {
+  #if ENABLED(TOTUMDUINO)
+  if( FABtotum::core.triggerEvent(ERROR_MAX_TEMP) ) {
+  #endif
+  
   #if HAS_TEMP_BED
     _temp_error(e, PSTR(MSG_T_MAXTEMP), e >= 0 ? PSTR(MSG_ERR_MAXTEMP) : PSTR(MSG_ERR_MAXTEMP_BED));
   #else
@@ -538,8 +546,16 @@ void Temperature::max_temp_error(const int8_t e) {
       UNUSED(e);
     #endif
   #endif
+  
+  #if ENABLED(TOTUMDUINO)
+  }
+  #endif
 }
 void Temperature::min_temp_error(const int8_t e) {
+  #if ENABLED(TOTUMDUINO)
+  if( FABtotum::core.triggerEvent(ERROR_MIN_TEMP) ) {
+  #endif
+  
   #if HAS_TEMP_BED
     _temp_error(e, PSTR(MSG_T_MINTEMP), e >= 0 ? PSTR(MSG_ERR_MINTEMP) : PSTR(MSG_ERR_MINTEMP_BED));
   #else
@@ -547,6 +563,10 @@ void Temperature::min_temp_error(const int8_t e) {
     #if HOTENDS == 1
       UNUSED(e);
     #endif
+  #endif
+  
+  #if ENABLED(TOTUMDUINO)
+  }
   #endif
 }
 

@@ -24,6 +24,9 @@
 //#define MILL_MOTOR_OFF() if (IsStopped() || active_extruder!=2) WRITE(MILL_MOTOR_ON_PIN,LOW)
 #define MILL_MOTOR_OFF() WRITE(MILL_MOTOR_ON_PIN,LOW)
 
+#define HEAD_24V_ON()	   WRITE(MILL_MOTOR_ON_PIN,HIGH)
+#define HEAD_24V_OFF()	 WRITE(MILL_MOTOR_ON_PIN,LOW)
+
 #define MILL_MOTOR_STATUS()  READ(MILL_MOTOR_ON_PIN)
 
 //#define SERVO1_ON()	if (IsStopped() || active_extruder!=2) WRITE(NOT_SERVO1_ON_PIN,LOW)

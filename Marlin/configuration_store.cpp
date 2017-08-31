@@ -40,8 +40,6 @@
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET       100
-#define EEPROM_OFFSET_WRITE 100
-#define EEPROM_OFFSET_READ 70
 /**
  * V39 EEPROM Layout:
  *
@@ -206,8 +204,7 @@ MarlinSettings settings;
 #endif
 
 #if ENABLED(TOTUMDUINO)
-  #include "fabtotum/Fabtotum.h"
-  extern Fabtotum fabtotum;
+  #include "fabtotum/FABtotum.h"
 #endif
 /**
  * Post-process after Retrieve or Reset
@@ -317,11 +314,11 @@ void MarlinSettings::postprocess() {
     EEPROM_START();
 
     #if ENABLED(TOTUMDUINO)
-    eeprom_index = EEPROM_OFFSET_READ;
-    EEPROM_READ(fabtotum.fab_serial_code);
-    EEPROM_READ(fabtotum.fab_control_serial_code);
-    EEPROM_READ(fabtotum.fab_board_version);
-    EEPROM_WRITE(fabtotum.fab_batch_number);
+    eeprom_index = FABTOTUM_EEPROM_OFFSET;
+    EEPROM_READ(FABtotum::core.fab_serial_code);
+    EEPROM_READ(FABtotum::core.fab_control_serial_code);
+    EEPROM_READ(FABtotum::core.fab_board_version);
+    EEPROM_WRITE(FABtotum::core.fab_batch_number);
     eeprom_index = EEPROM_OFFSET;
     #endif
 
@@ -363,6 +360,10 @@ void MarlinSettings::postprocess() {
       // Skip hotend 0 which must be 0
       for (uint8_t e = 1; e < HOTENDS; e++)
         LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
+    #endif
+
+    #if ENABLED(TOTUMDUINO)
+    EEPROM_WRITE(FABtotum::head.installed_head_id);
     #endif
 
     //
@@ -665,7 +666,7 @@ void MarlinSettings::postprocess() {
       const uint16_t final_crc = working_crc;
 
       // Write the EEPROM header
-      eeprom_index = EEPROM_OFFSET_WRITE;
+      eeprom_index = EEPROM_OFFSET;
 
       EEPROM_WRITE(version);
       EEPROM_WRITE(final_crc);
@@ -673,7 +674,7 @@ void MarlinSettings::postprocess() {
       // Report storage size
       #if ENABLED(EEPROM_CHITCHAT)
         SERIAL_ECHO_START();
-        SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET_WRITE));
+        SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
         SERIAL_ECHOPAIR(" bytes; crc ", final_crc);
         SERIAL_ECHOLNPGM(")");
       #endif
@@ -693,25 +694,25 @@ void MarlinSettings::postprocess() {
   bool MarlinSettings::load() {
     uint16_t working_crc = 0;
     unsigned long zero_pad=0;
-    
+
     EEPROM_START();
 
     #if ENABLED(TOTUMDUINO)
-    eeprom_index = EEPROM_OFFSET_READ;
-    EEPROM_READ(fabtotum.fab_serial_code);            // 4, 70
-    EEPROM_READ(fabtotum.fab_control_serial_code);    // 4, 74
-    EEPROM_READ(fabtotum.fab_board_version);          // 2, 76
-    EEPROM_READ(fabtotum.fab_batch_number);           // 2, 78
-    EEPROM_READ(fabtotum.fab_control_batch_number);   // 4, 82
-    EEPROM_READ(fabtotum.led_board_version);          // 2, 84
-    EEPROM_READ(fabtotum.flex_board_version);         // 2, 86
-    EEPROM_READ(fabtotum.plateconn_board_version);    // 2, 88
-    EEPROM_READ(fabtotum.hotplate_board_version);     // 2, 90
-    EEPROM_READ(fabtotum.general_assembly_version);   // 2, 92
+    eeprom_index = FABTOTUM_EEPROM_OFFSET;
+    EEPROM_READ(FABtotum::core.fab_serial_code);            // 4, 70
+    EEPROM_READ(FABtotum::core.fab_control_serial_code);    // 4, 74
+    EEPROM_READ(FABtotum::core.fab_board_version);          // 2, 76
+    EEPROM_READ(FABtotum::core.fab_batch_number);           // 2, 78
+    EEPROM_READ(FABtotum::core.fab_control_batch_number);   // 4, 82
+    EEPROM_READ(FABtotum::core.led_board_version);          // 2, 84
+    EEPROM_READ(FABtotum::core.flex_board_version);         // 2, 86
+    EEPROM_READ(FABtotum::core.plateconn_board_version);    // 2, 88
+    EEPROM_READ(FABtotum::core.hotplate_board_version);     // 2, 90
+    EEPROM_READ(FABtotum::core.general_assembly_version);   // 2, 92
     EEPROM_READ(zero_pad);                            // 4, 96
     eeprom_index = EEPROM_OFFSET;
     #endif
-    
+
     char stored_ver[4];
     EEPROM_READ(stored_ver);
 
@@ -779,6 +780,10 @@ void MarlinSettings::postprocess() {
         // Skip hotend 0 which must be 0
         for (uint8_t e = 1; e < HOTENDS; e++)
           LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
+      #endif
+
+      #if ENABLED(TOTUMDUINO)
+      EEPROM_READ(FABtotum::head.installed_head_id);
       #endif
 
       //
@@ -1045,7 +1050,7 @@ void MarlinSettings::postprocess() {
         #if ENABLED(EEPROM_CHITCHAT)
           SERIAL_ECHO_START();
           SERIAL_ECHO(version);
-          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET_READ));
+          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (FABTOTUM_EEPROM_OFFSET));
           SERIAL_ECHOPAIR(" bytes; crc ", working_crc);
           SERIAL_ECHOLNPGM(")");
         #endif
